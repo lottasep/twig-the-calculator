@@ -65,4 +65,5 @@ a:hover {
   grid-column: 1 / 5;
   background-color: white;
   font-size: xx-large;
+  text-align: right;
 }
