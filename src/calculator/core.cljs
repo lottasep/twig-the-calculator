@@ -1,11 +1,11 @@
 (ns calculator.core
-  (:require [clojure.string :as str]
-            [reagent.core :as r]
+  (:require [reagent.core :as r]
             [reagent.dom :as d]))
 
 
 ;; -------------------------
 ;; Atoms (= states)
+
 
 (def calculation (r/atom 0))
 
@@ -15,32 +15,16 @@
 
 (def last-click (r/atom "number")) ;; "number" | "action"
 
-(def calculation-in-progress (r/atom false))
-
 
 ;; -------------------------
 ;; Actions
 
+
 (defn do-calculate [action number]
-  (let [number-as-float (js/parseFloat number)]
-    (if (false? @calculation-in-progress)
-      (do
-        (reset! calculation-in-progress true)
-        (reset! calculation number-as-float))
-      (do
-        (case action
-          "+" (reset! calculation (+ @calculation number-as-float))
-          "-" (reset! calculation (- @calculation number-as-float))
-          "*" (reset! calculation (* @calculation number-as-float))
-          "/" (reset! calculation (/ @calculation number-as-float))
-          "=" (do (do-calculate @last-selected-action number-as-float)
-                  (reset! last-selected-action "")))
-        (reset! last-selected-number @calculation)))))
-
-
-(defn handle-decimal []
-  (when-not (str/includes? @last-selected-number ".")
-    (reset! last-selected-number (str @last-selected-number "."))))
+  (let [number-as-int (int number)]
+    (case action
+      "+" (reset! calculation (+ @calculation number-as-int)))
+    (reset! last-selected-number @calculation)))
 
 
 (defn handle-number-click [number]
@@ -51,9 +35,9 @@
 
 
 (defn handle-action-click [action]
+  (reset! last-selected-action action)
   (if (= @last-click "number")
-    (do (do-calculate @last-selected-action @last-selected-number)
-        (reset! last-selected-action action))
+    (do-calculate action @last-selected-number)
     (reset! last-selected-action action))
   (reset! last-click "action"))
 
@@ -61,17 +45,13 @@
 ;; -------------------------
 ;; Views
 
+
 (defn display []
   [:input {:class "result-view"
            :type :text
            :disabled true
            :placeholder "feed me numbers"
            :value @last-selected-number}])
-
-(defn decimal-button []
-  ^{:key ","}
-  [:button {:class "action-button"
-            :on-click #(handle-decimal)} ","])
 
 (defn action-button [action]
   ^{:key action}
@@ -81,7 +61,7 @@
 (defn number-button [number]
   ^{:key number}
   [:button {:class "number-button"
-            :on-click #(handle-number-click number)}
+            :on-click #(handle-number-click (str number))}
    number])
 
 (defn calculator []
@@ -94,15 +74,15 @@
    (map number-button (range 1 4))
    (action-button "*")
    (number-button 0)
-   (decimal-button)
+   (action-button ",")
    (action-button "/")
    (action-button "=")])
+
 
 (defn home-page []
   [:div
    [:div [:h2 "Clojure(Script) Calculator"]]
    [calculator]])
-
 
 ;; -------------------------
 ;; Initialize app
