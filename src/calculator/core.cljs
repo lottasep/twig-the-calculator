@@ -28,6 +28,7 @@
 
 
 (defn handle-number-click [number]
+(println "Number clicked:" number)
   (if (= @last-click "number")
     (swap! last-selected-number str number)
     (reset! last-selected-number number))
@@ -35,6 +36,7 @@
 
 
 (defn handle-action-click [action]
+  (println "Action clicked:" action)
   (reset! last-selected-action action)
   (if (= @last-click "number")
     (do-calculate action @last-selected-number)
