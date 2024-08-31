@@ -15,6 +15,8 @@
 
 (def last-click (r/atom "number")) ;; "number" | "action"
 
+(def calculation-in-progress (r/atom false))
+
 
 ;; -------------------------
 ;; Actions
@@ -22,9 +24,16 @@
 
 (defn do-calculate [action number]
   (let [number-as-int (int number)]
-    (case action
-      "+" (reset! calculation (+ @calculation number-as-int)))
-    (reset! last-selected-number @calculation)))
+    (if (false? @calculation-in-progress)
+      (do
+        (reset! calculation-in-progress true)
+        (reset! calculation number-as-int))
+      (do
+        (case action
+          "+" (reset! calculation (+ @calculation number-as-int))
+          "*" (reset! calculation (* @calculation number-as-int))
+          "-" (reset! calculation (- @calculation number-as-int)))
+        (reset! last-selected-number @calculation)))))
 
 
 (defn handle-number-click [number]
