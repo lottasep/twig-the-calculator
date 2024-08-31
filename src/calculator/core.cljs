@@ -22,6 +22,7 @@
 ;; Actions
 
 
+
 (defn do-calculate [action number]
   (let [number-as-int (int number)]
     (if (false? @calculation-in-progress)
@@ -35,7 +36,6 @@
           "-" (reset! calculation (- @calculation number-as-int)))
         (reset! last-selected-number @calculation)))))
 
-
 (defn handle-number-click [number]
 (println "Number clicked:" number)
   (if (= @last-click "number")
@@ -46,10 +46,10 @@
 
 (defn handle-action-click [action]
   (println "Action clicked:" action)
-  (reset! last-selected-action action)
   (if (= @last-click "number")
-    (do-calculate action @last-selected-number)
-    (reset! last-selected-action action))
+    (do-calculate @last-selected-action @last-selected-number)
+    (reset! last-selected-action action)) 
+  (reset! last-selected-action action)
   (reset! last-click "action"))
 
 
